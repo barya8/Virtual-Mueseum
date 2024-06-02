@@ -23,4 +23,10 @@ public class AuthController {
         ServiceResult serviceResult = authService.validateUser(userDto);
         return new ResponseEntity<>(serviceResult, HttpStatus.OK);
     }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<ServiceResult> resetPassword(@RequestBody UserDto userDto) {
+        ServiceResult serviceResult = authService.resetPassword(userDto);
+        return new ResponseEntity<>(serviceResult, HttpStatus.OK);
+    }
 }
