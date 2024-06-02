@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museum Exhibition Upload</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #86c0b3, #d1e2cb);
+            color: #374140;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        form {
+            max-width: 600px;
+            width: 100%;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        form:hover {
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #3b5249;
+            margin: 0;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #3b5249;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f2f5f4;
+            color: #374140;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            background-color: #e0f0eb;
+        }
+
+        input[type="file"] {
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #4e735f;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #3b5249;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #748880;
+        }
+    </style>
+</head>
+<body>
+
+<form id="uploadForm" action="http://localhost:8080/api/photos/upload" method="post" enctype="multipart/form-data">
+    <header>
+        <h1>Museum Exhibition Upload</h1>
+    </header>
+
+    <label for="exhibitionId">Exhibition ID:</label>
+    <input type="text" id="exhibitionId" name="exhibitionId" required>
+
+    <label for="fileName">File Name:</label>
+    <input type="text" id="fileName" name="fileName" required>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" rows="4" required></textarea>
+
+    <label for="uploadDate">Upload Date:</label>
+    <input type="date" id="uploadDate" name="uploadDate" required>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" required>
+
+    <label for="artist">Artist:</label>
+    <input type="text" id="artist" name="artist" required>
+
+    <label for="fileInput">Choose File:</label>
+    <input type="file" id="fileInput" name="fileInput" accept="image/*" required>
+
+    <button type="button" onclick="submitForm()">Submit</button>
+
+    <footer>
+        &copy; Bar Yaron & Yakir Zafrani
+    </footer>
+</form>
+
+<script>
+    let logoutTimer;
+
+    function checkAuthentication() {
+        const sessionToken = localStorage.getItem('sessionToken');
+        if (!sessionToken) {
+            // Redirect to login page if no session token is found
+            window.location.href = 'login.html';
+        }
+    }
+
+    function startLogoutTimer() {
+        clearTimeout(logoutTimer);
+        logoutTimer = setTimeout(() => {
+            localStorage.removeItem('sessionToken');
+            alert('Session Expired.');
+            window.location.href = 'login.html';
+        }, 300000); // 5 minuets
+    }
+
+    function validateForm() {
+        const exhibitionId = document.getElementById('exhibitionId');
+        const fileName = document.getElementById('fileName');
+        const description = document.getElementById('description');
+        const uploadDate = document.getElementById('uploadDate');
+        const location = document.getElementById('location');
+        const artist = document.getElementById('artist');
+        const fileInput = document.getElementById('fileInput');
+
+        const missingFields = [];
+
+        if (!validateField(exhibitionId)) missingFields.push(exhibitionId);
+        if (!validateField(fileName)) missingFields.push(fileName);
+        if (!validateField(description)) missingFields.push(description);
+        if (!validateField(uploadDate)) missingFields.push(uploadDate);
+        if (!validateField(location)) missingFields.push(location);
+        if (!validateField(artist)) missingFields.push(artist);
+        if (!validateFileField(fileInput)) missingFields.push(fileInput);
+
+        if (missingFields.length > 0) {
+            alert('Please fill out all required fields.');
+            missingFields.forEach(field => markFieldAsInvalid(field));
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateField(element) {
+        const isValid = element.value.trim() !== '';
+        if (isValid) {
+            element.style.border = '';
+        }
+        return isValid;
+    }
+
+    function validateFileField(element) {
+        const isValid = element.files.length > 0;
+        if (isValid) {
+            element.style.border = '';
+        }
+        return isValid;
+    }
+
+    function markFieldAsInvalid(element) {
+        element.style.border = '2px solid red';
+    }
+
+    function submitForm() {
+        if (validateForm()) {
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form);
+
+            fetch('http://localhost:8080/api/photos/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                console.log('Raw Response:', response);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Response:', data);
+                form.reset();
+            })
+            .catch(error => {
+                console.error('API Error:', error);
+            });
+        }
+    }
+
+    // Start the logout timer when the page loads
+    window.onload = () => {
+        checkAuthentication();
+        startLogoutTimer();
+    };
+
+    // Reset the logout timer on any user interaction
+    document.addEventListener('mousemove', startLogoutTimer);
+    document.addEventListener('keydown', startLogoutTimer);
+    document.addEventListener('click', startLogoutTimer);
+</script>
+</body>
+</html>
