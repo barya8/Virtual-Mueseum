@@ -1,18 +1,19 @@
 package com.company.controller;
 
-import com.company.dto.ServiceResult;
+import com.company.exceptions.ServiceResultException;
+import com.company.model.ServiceResult;
 import com.company.dto.UserDto;
 import com.company.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     @Autowired
@@ -20,13 +21,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ServiceResult> authenticate(@RequestBody UserDto userDto) {
-        ServiceResult serviceResult = authService.validateUser(userDto);
-        return new ResponseEntity<>(serviceResult, HttpStatus.OK);
+        return new ResponseEntity<>(authService.validateUser(userDto), HttpStatus.OK);
     }
 
     @PostMapping("/resetPassword")
     public ResponseEntity<ServiceResult> resetPassword(@RequestBody UserDto userDto) {
-        ServiceResult serviceResult = authService.resetPassword(userDto);
-        return new ResponseEntity<>(serviceResult, HttpStatus.OK);
+        try {
+            ServiceResult result = authService.resetPassword(userDto);
+            return ResponseEntity.ok(result);
+        } catch (ServiceResultException e) {
+            ServiceResult errorResult = e.getServiceResult();
+            log.error("Error resetting password {}", errorResult);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
+        }
     }
 }

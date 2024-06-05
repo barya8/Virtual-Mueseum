@@ -1,11 +1,19 @@
 package com.company.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
 @Entity
 @Table(name = "photos")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Photo {
 
     @Id
@@ -28,76 +36,4 @@ public class Photo {
     @Lob
     @Column(name = "base64Data")
     private String imageData;
-
-    public Integer getPhotoId() {
-        return photoId;
-    }
-
-    public Photo setPhotoId(Integer photoId) {
-        this.photoId = photoId;
-        return this;
-    }
-
-    public Integer getExhibitionId() {
-        return exhibitionId;
-    }
-
-    public Photo setExhibitionId(Integer exhibitionId) {
-        this.exhibitionId = exhibitionId;
-        return this;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public Photo setFileName(String fileName) {
-        this.fileName = fileName;
-        return this;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Photo setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public Date getUploadDate() {
-        return uploadDate;
-    }
-
-    public Photo setUploadDate(Date uploadDate) {
-        this.uploadDate = uploadDate;
-        return this;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public Photo setLocation(String location) {
-        this.location = location;
-        return this;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public Photo setArtist(String artist) {
-        this.artist = artist;
-        return this;
-    }
-
-    public String getImageData() {
-        return imageData;
-    }
-
-    public Photo setImageData(String imageData) {
-        this.imageData = imageData;
-        return this;
-    }
 }
