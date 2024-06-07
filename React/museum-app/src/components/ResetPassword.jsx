@@ -28,8 +28,8 @@ const BASE_PATH= process.env.REACT_APP_AUTH_BASE_PATH;
   });
 
       if (response.status === 200) {
-        if (response.data.serviceResult.returnCode === '0') {
-          alert('Password reset successful.');
+        if (response.data.returnCode === '0') {
+          alert(response.data.returnMessage);
           navigate('/'); // Redirect to login page using history
         } else {
           throw new Error('Password Reset Failed: ' + response.data.serviceResult.returnMessage);

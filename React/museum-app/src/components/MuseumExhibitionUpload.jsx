@@ -1,41 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MuseumExhibitionUpload.css';
 
 const MuseumExhibitionUpload = () => {
-const [exhibitionId, setExhibitionId] = useState('');
-const [fileName, setFileName] = useState('');
-const [description, setDescription] = useState('');
-const [uploadDate, setUploadDate] = useState('');
-const [location, setLocation] = useState('');
-const [artist, setArtist] = useState('');
-const [fileInput, setFileInput] = useState(null);
-const navigate = useNavigate();
-const AUTHORIZATION_TOKEN = process.env.REACT_APP_AUTHORIZATION_TOKEN;
-const HOST= process.env.REACT_APP_HOST;
-const PORT= process.env.REACT_APP_PORT;
-const BASE_PATH= process.env.REACT_APP_PHOTOS_BASE_PATH;
+    const [exhibitionId, setExhibitionId] = useState('');
+    const [fileName, setFileName] = useState('');
+    const [description, setDescription] = useState('');
+    const [uploadDate, setUploadDate] = useState('');
+    const [location, setLocation] = useState('');
+    const [artist, setArtist] = useState('');
+    const [fileInput, setFileInput] = useState(null);
+    const fileInputRef = useRef(null);
+    const navigate = useNavigate();
+    const AUTHORIZATION_TOKEN = process.env.REACT_APP_AUTHORIZATION_TOKEN;
+    const HOST = process.env.REACT_APP_HOST;
+    const PORT = process.env.REACT_APP_PORT;
+    const BASE_PATH = process.env.REACT_APP_PHOTOS_BASE_PATH;
 
     useEffect(() => {
-        // Check if the user is logged in
         const sessionToken = localStorage.getItem('sessionToken');
         if (!sessionToken) {
-            navigate('/'); // Redirect to login page if not logged in
+            navigate('/');
         }
     }, [navigate]);
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             logoutUser();
-        }, 300000); // 5 minutes timeout
+        }, 300000);
 
         return () => clearTimeout(timeoutId);
     }, []);
 
     const logoutUser = () => {
-        localStorage.removeItem('sessionToken'); // Remove authentication token
-        navigate('/'); // Navigate to login page
+        localStorage.removeItem('sessionToken');
+        navigate('/');
     };
 
     const submitForm = async () => {
@@ -48,7 +48,6 @@ const BASE_PATH= process.env.REACT_APP_PHOTOS_BASE_PATH;
             formData.append('location', location);
             formData.append('artist', artist);
             formData.append('fileInput', fileInput);
-            console.log(formData.get('fileInput'))
 
             const response = await axios.post(`http://${HOST}:${PORT}${BASE_PATH}/upload`, formData, {
                 headers: {
@@ -57,8 +56,8 @@ const BASE_PATH= process.env.REACT_APP_PHOTOS_BASE_PATH;
                 }
             });
             console.log('API Response:', response.data);
+            alert(response.data.returnMessage);
 
-            // Reset form fields after successful submission
             setExhibitionId('');
             setFileName('');
             setDescription('');
@@ -66,40 +65,98 @@ const BASE_PATH= process.env.REACT_APP_PHOTOS_BASE_PATH;
             setLocation('');
             setArtist('');
             setFileInput(null);
+            fileInputRef.current && (fileInputRef.current.value= '');
+
         } catch (error) {
             console.error('API Error:', error);
+            alert(error);
         }
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        await submitForm();
     };
 
     return (
         <div className="reset-password-container">
-            <form id="uploadForm">
+            <form id="uploadForm" onSubmit={handleSubmit}>
                 <header>
                     <h1>Museum Exhibition Upload</h1>
                 </header>
 
                 <label htmlFor="exhibitionId">Exhibition ID:</label>
-                <input type="text" id="exhibitionId" name="exhibitionId" value={exhibitionId} onChange={e => setExhibitionId(e.target.value)} required />
+                <input
+                    type="text"
+                    id="exhibitionId"
+                    name="exhibitionId"
+                    value={exhibitionId}
+                    onChange={e => setExhibitionId(e.target.value)}
+                    required
+                />
 
                 <label htmlFor="fileName">File Name:</label>
-                <input type="text" id="fileName" name="fileName" value={fileName} onChange={e => setFileName(e.target.value)} required />
+                <input
+                    type="text"
+                    id="fileName"
+                    name="fileName"
+                    value={fileName}
+                    onChange={e => setFileName(e.target.value)}
+                    required
+                />
 
                 <label htmlFor="description">Description:</label>
-                <textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} rows="4" required></textarea>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    rows="4"
+                    required
+                ></textarea>
 
                 <label htmlFor="uploadDate">Upload Date:</label>
-                <input type="date" id="uploadDate" name="uploadDate" value={uploadDate} onChange={e => setUploadDate(e.target.value)} required />
+                <input
+                    type="date"
+                    id="uploadDate"
+                    name="uploadDate"
+                    value={uploadDate}
+                    onChange={e => setUploadDate(e.target.value)}
+                    required
+                />
 
                 <label htmlFor="location">Location:</label>
-                <input type="text" id="location" name="location" value={location} onChange={e => setLocation(e.target.value)} required />
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value={location}
+                    onChange={e => setLocation(e.target.value)}
+                    required
+                />
 
                 <label htmlFor="artist">Artist:</label>
-                <input type="text" id="artist" name="artist" value={artist} onChange={e => setArtist(e.target.value)} required />
+                <input
+                    type="text"
+                    id="artist"
+                    name="artist"
+                    value={artist}
+                    onChange={e => setArtist(e.target.value)}
+                    required
+                />
 
                 <label htmlFor="fileInput">Choose File:</label>
-                <input type="file" id="fileInput" name="fileInput" accept="image/*" onChange={e => setFileInput(e.target.files[0])} required />
+                <input
+                    type="file"
+                    id="fileInput"
+                    name="fileInput"
+                    accept="image/*"
+                    onChange={e => setFileInput(e.target.files?.[0])}
+                    ref={fileInputRef}
+                    required
+                />
 
-                <button type="button" onClick={submitForm}>Submit</button>
+                <button type="submit">Submit</button>
 
                 <footer>
                     &copy; Bar Yaron & Yakir Zafrani
