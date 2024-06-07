@@ -1,6 +1,6 @@
 package com.company.controller;
 
-import com.company.dto.ExhibitionResponse;
+import com.company.model.ExhibitionResponse;
 import com.company.model.ServiceResult;
 import com.company.service.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,6 +4,7 @@ import com.company.exceptions.ServiceResultException;
 import com.company.model.ServiceResult;
 import com.company.dto.UserDto;
 import com.company.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,12 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ServiceResult> authenticate(@RequestBody UserDto userDto) {
+    public ResponseEntity<ServiceResult> authenticate(@Valid @RequestBody UserDto userDto) {
         return new ResponseEntity<>(authService.validateUser(userDto), HttpStatus.OK);
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<ServiceResult> resetPassword(@RequestBody UserDto userDto) {
+    public ResponseEntity<ServiceResult> resetPassword(@Valid @RequestBody UserDto userDto) {
         try {
             ServiceResult result = authService.resetPassword(userDto);
             return ResponseEntity.ok(result);

@@ -7,6 +7,8 @@ import com.company.repo.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,13 +17,18 @@ public class AuthService {
 
     @Autowired
     private UserRepo userRepo;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public ServiceResult validateUser(UserDto userDto) {
         String username = userDto.getUsername();
         String password = userDto.getPassword();
         log.info("Received request to validate user={}", username);
         ServiceResult.ServiceResultBuilder serviceResult=ServiceResult.builder();
-        boolean isAuthenticated = authenticateUser(username, password);
+
+        // Retrieve the stored hashed password
+        String storedPasswordHash = userRepo.findPasswordByUsername(username);
+        boolean isAuthenticated = passwordEncoder.matches(password, storedPasswordHash);
+//        boolean isAuthenticated = authenticateUser(username, password);
 
         // Check if the user exists
         if (isAuthenticated) {
@@ -39,21 +46,16 @@ public class AuthService {
         return result;
     }
 
-    private boolean authenticateUser(String username, String password) {
-        int count = userRepo.findByUsernameAndPassword(username, password);
-        return count > 0;
-    }
-
     public ServiceResult resetPassword(UserDto userDto) {
         ServiceResult.ServiceResultBuilder serviceResult=ServiceResult.builder();
         String username = userDto.getUsername();
         String password = userDto.getPassword();
         try {
             log.info("Received request to reset password for user={}", username);
+            String hashedPassword = passwordEncoder.encode(password);
             // Try to update the user's password
-            int updatedRows = userRepo.updatePasswordByUsername(username, password);
+            int updatedRows = userRepo.updatePasswordByUsername(username, hashedPassword);
             if (updatedRows != 0) {
-                userRepo.updatePasswordByUsername(username, password);
                 serviceResult
                         .returnCode("0")
                         .returnMessage("Password reset successfully.");

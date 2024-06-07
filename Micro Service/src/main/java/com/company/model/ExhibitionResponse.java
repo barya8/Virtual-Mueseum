@@ -1,4 +1,4 @@
-package com.company.dto;
+package com.company.model;
 
 import com.company.model.Photo;
 import lombok.AllArgsConstructor;

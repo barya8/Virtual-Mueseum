@@ -12,8 +12,8 @@ package com.company.repo;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.username = :username AND u.password = :password")
-    int findByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+    @Query("SELECT u.password FROM User u WHERE u.username = :username")
+    String findPasswordByUsername(@Param("username") String username);
 
     @Modifying
     @Transactional

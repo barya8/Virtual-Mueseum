@@ -1,7 +1,6 @@
 package com.company.service;
 
-import com.company.dto.ExhibitionResponse;
-import com.company.dto.PhotoDto;
+import com.company.model.ExhibitionResponse;
 import com.company.exceptions.ServiceResultException;
 import com.company.model.ServiceResult;
 import com.company.model.Photo;
@@ -36,8 +35,8 @@ public class PhotoService {
         try {
             log.info("Received request to upload photo: exhibitionId={}, fileName={}, description={}, uploadDate={}, location={}, artist={}",
                     exhibitionId, fileName, description, uploadDate, location, artist);
-            PhotoDto photoDto=PhotoDto.builder()
-                    .fileInput(fileInput)
+
+            Photo photo = Photo.builder()
                     .exhibitionId(exhibitionId)
                     .fileName(fileName)
                     .description(description)
@@ -46,17 +45,8 @@ public class PhotoService {
                     .artist(artist)
                     .build();
 
-            Photo photo = Photo.builder()
-                    .exhibitionId(photoDto.getExhibitionId())
-                    .fileName(photoDto.getFileName())
-                    .description(photoDto.getDescription())
-                    .uploadDate(photoDto.getUploadDate())
-                    .location(photoDto.getLocation())
-                    .artist(photoDto.getArtist())
-                    .build();
-
             // Read image data bytes from MultipartFile and encode to Base64
-            byte[] imageDataBytes = photoDto.getFileInput().getBytes();
+            byte[] imageDataBytes = fileInput.getBytes();
             String base64ImageData = Base64.getEncoder().encodeToString(imageDataBytes);
             photo.setImageData(base64ImageData);
 
