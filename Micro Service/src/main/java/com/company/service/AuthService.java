@@ -10,6 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @Slf4j
@@ -28,7 +29,6 @@ public class AuthService {
         // Retrieve the stored hashed password
         String storedPasswordHash = userRepo.findPasswordByUsername(username);
         boolean isAuthenticated = passwordEncoder.matches(password, storedPasswordHash);
-//        boolean isAuthenticated = authenticateUser(username, password);
 
         // Check if the user exists
         if (isAuthenticated) {
@@ -54,7 +54,7 @@ public class AuthService {
             log.info("Received request to reset password for user={}", username);
             String hashedPassword = passwordEncoder.encode(password);
             // Try to update the user's password
-            int updatedRows = userRepo.updatePasswordByUsername(username, hashedPassword);
+            int updatedRows = userRepo.updatePasswordByUsername(username, hashedPassword, false);
             if (updatedRows != 0) {
                 serviceResult
                         .returnCode("0")
@@ -76,6 +76,36 @@ public class AuthService {
         }
         ServiceResult result = serviceResult.build();
         log.info("Reset password result for user {}: returnCode={}, returnMessage={}",
+                username, result.getReturnCode(), result.getReturnMessage());
+        return result;
+    }
+
+    public ServiceResult lockUser(String username) {
+        ServiceResult.ServiceResultBuilder serviceResult = ServiceResult.builder();
+        try {
+            log.info("Received request to lock user={}", username);
+            int updatedRows = userRepo.updateLockedStatusByUsername(username, true);
+            if (updatedRows != 0) {
+                serviceResult
+                        .returnCode("0")
+                        .returnMessage("User locked successfully.");
+            } else {
+                log.warn("User not found: {}", username);
+                throw new ServiceResultException(ServiceResult.builder()
+                        .returnCode("98")
+                        .returnMessage("User not found")
+                        .build());
+            }
+        } catch (DataAccessException e) {
+            log.error("Error locking user {}: {}", username, e.getMessage());
+            throw new ServiceResultException(ServiceResult.builder()
+                    .returnCode("99")
+                    .returnMessage("Error locking user.")
+                    .build());
+        }
+
+        ServiceResult result = serviceResult.build();
+        log.info("Lock user result for user {}: returnCode={}, returnMessage={}",
                 username, result.getReturnCode(), result.getReturnMessage());
         return result;
     }

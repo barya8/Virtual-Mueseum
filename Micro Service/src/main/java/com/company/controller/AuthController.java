@@ -36,4 +36,16 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
         }
     }
+
+    @PostMapping("/lockUser/{username}")
+    public ResponseEntity<ServiceResult> lockUser(@PathVariable String username) {
+            try {
+            ServiceResult result = authService.lockUser(username);
+            return ResponseEntity.ok(result);
+        } catch (ServiceResultException e) {
+            ServiceResult errorResult = e.getServiceResult();
+            log.error("Error resetting password {}", errorResult);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
+        }
+    }
 }

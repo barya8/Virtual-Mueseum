@@ -12,11 +12,16 @@ package com.company.repo;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 
-    @Query("SELECT u.password FROM User u WHERE u.username = :username")
+    @Query("SELECT u.password FROM User u WHERE u.username = :username AND u.locked = false")
     String findPasswordByUsername(@Param("username") String username);
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.password = :password WHERE u.username = :username")
-    int updatePasswordByUsername(@Param("username") String username, @Param("password") String password);
+    @Query("UPDATE User u SET u.password = :password, u.locked = :locked WHERE u.username = :username")
+    int updatePasswordByUsername(@Param("username") String username, @Param("password") String password, @Param("locked") boolean locked);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.locked = :locked WHERE u.username = :username")
+    int updateLockedStatusByUsername(@Param("username") String username, @Param("locked") boolean locked);
 }
