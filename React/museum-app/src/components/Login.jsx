@@ -25,6 +25,7 @@ const Login = () => {
         }
     }, [loginAttempts]);
 
+ // Authenticate user
   const authenticateUser = async () => {
     try {
         console.log("Authorization Token:", AUTHORIZATION_TOKEN);
@@ -43,9 +44,13 @@ const Login = () => {
             } else {
                 throw new Error(response.data.returnMessage);
             }
+
+            //In case of a connection error to the database
         } else {
             throw new Error('Authentication Failed');
         }
+
+        //In case of a connection error to the api
     } catch (error) {
         setLoginAttempts(prevAttempts => prevAttempts + 1);
         console.error('Authentication Error:', error);
@@ -53,6 +58,7 @@ const Login = () => {
     }
   };
 
+  // lock user
   const lockUser = async () => {
       try {
         console.log("Authorization Token:", AUTHORIZATION_TOKEN);

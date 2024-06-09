@@ -36,6 +36,8 @@ public class PhotoService {
             log.info("Received request to upload photo: exhibitionId={}, fileName={}, description={}, uploadDate={}, location={}, artist={}",
                     exhibitionId, fileName, description, uploadDate, location, artist);
 
+            //Build photo model
+
             Photo photo = Photo.builder()
                     .exhibitionId(exhibitionId)
                     .fileName(fileName)
@@ -53,9 +55,12 @@ public class PhotoService {
             photoRepo.save(photo);
             log.info("Photo uploaded and saved successfully: exhibitionId={}, photoId={}", exhibitionId, photo.getPhotoId());
 
+            //Return result
             serviceResult
                     .returnCode("0")
                     .returnMessage("Photo uploaded and saved successfully!");
+
+            //Error in the connection to the database
         } catch (IOException e) {
             log.error("Error uploading photo.", e);
             throw new ServiceResultException(ServiceResult.builder()
@@ -71,9 +76,13 @@ public class PhotoService {
         try {
             log.info("Received request to retrieve exhibition data: exhibitionId={}", exhibitionId);
             List<Photo> photos = photoRepo.findByExhibitionId(exhibitionId);
+
+            //Return result for regular response and empty response
             ExhibitionResponse exhibitionResponse = new ExhibitionResponse(photos);
             log.info("Exhibition data retrieved successfully: exhibitionId={}, numPhotos={}", exhibitionId, photos.size());
             return new ResponseEntity<>(exhibitionResponse, HttpStatus.OK);
+
+            //Error in the connection to the database
         } catch (Exception e) {
             log.error("Error retrieving exhibition data.", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

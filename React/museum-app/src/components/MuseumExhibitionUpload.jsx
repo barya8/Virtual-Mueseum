@@ -18,6 +18,7 @@ const MuseumExhibitionUpload = () => {
     const PORT = process.env.REACT_APP_PORT;
     const BASE_PATH = process.env.REACT_APP_PHOTOS_BASE_PATH;
 
+    //Ensure that the call to this page comes from the login page
     useEffect(() => {
         const sessionToken = localStorage.getItem('sessionToken');
         if (!sessionToken) {
@@ -25,6 +26,7 @@ const MuseumExhibitionUpload = () => {
         }
     }, [navigate]);
 
+    //Make a timeout of 5 minutes
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             logoutUser();
@@ -38,6 +40,7 @@ const MuseumExhibitionUpload = () => {
         navigate('/');
     };
 
+    //Upload the photo to the database
     const submitForm = async () => {
         try {
             const formData = new FormData();

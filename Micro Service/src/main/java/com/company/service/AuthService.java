@@ -28,9 +28,11 @@ public class AuthService {
 
         // Retrieve the stored hashed password
         String storedPasswordHash = userRepo.findPasswordByUsername(username);
+
+        // Check if the passwords matches
         boolean isAuthenticated = passwordEncoder.matches(password, storedPasswordHash);
 
-        // Check if the user exists
+        // Return result
         if (isAuthenticated) {
             serviceResult
                     .returnCode("0")
@@ -52,8 +54,11 @@ public class AuthService {
         String password = userDto.getPassword();
         try {
             log.info("Received request to reset password for user={}", username);
+
+            // Encode the password
             String hashedPassword = passwordEncoder.encode(password);
-            // Try to update the user's password
+
+            // Try to update the user's password and return result
             int updatedRows = userRepo.updatePasswordByUsername(username, hashedPassword, false);
             if (updatedRows != 0) {
                 serviceResult
@@ -67,6 +72,8 @@ public class AuthService {
                         .returnMessage("User not found")
                         .build());
             }
+
+            //Error in the connection to the database
         } catch (DataAccessException e) {
             log.error("Error resetting password for user {}: {}", username, e.getMessage());
             throw new ServiceResultException(ServiceResult.builder()
@@ -84,7 +91,11 @@ public class AuthService {
         ServiceResult.ServiceResultBuilder serviceResult = ServiceResult.builder();
         try {
             log.info("Received request to lock user={}", username);
+
+            // Try to update the user's lock status
             int updatedRows = userRepo.updateLockedStatusByUsername(username, true);
+
+            // Return result
             if (updatedRows != 0) {
                 serviceResult
                         .returnCode("0")
@@ -96,6 +107,8 @@ public class AuthService {
                         .returnMessage("User not found")
                         .build());
             }
+
+            //Error in the connection to the database
         } catch (DataAccessException e) {
             log.error("Error locking user {}: {}", username, e.getMessage());
             throw new ServiceResultException(ServiceResult.builder()

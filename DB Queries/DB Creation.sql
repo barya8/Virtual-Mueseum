@@ -1,4 +1,5 @@
 CREATE DATABASE museum;
+
 CREATE TABLE photos (
     photoId INT PRIMARY KEY AUTO_INCREMENT,
 	exhibitionId INT,	
@@ -18,6 +19,7 @@ CREATE TABLE users (
 );
 
 
+-- Insertion example with fake data
 insert into photos (exhibitionId,fileName,base64Data,description,uploadDate,location,artist)
 values (1,"test",1234,"nice photo!",'2019-01-01',"Tel Aviv", "Yakir");
 
